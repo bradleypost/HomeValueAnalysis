@@ -1,5 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 
 # Read the CSV file into zhvi_df
 zhvi_df = pd.read_csv(r"C:\Users\Bradley\PycharmProjects\HomeValueAnalysis\ZHVI by County.csv")
@@ -43,13 +44,29 @@ plt.xticks(rotation=45, ha='right')
 plt.tight_layout()
 plt.show()
 
-#scatter chart
+#Orlando metro area housing market
+#filter for the Orlando metro area
+orlando_housing_market = zhvi_df.loc[zhvi_df['Metro'] == 'Orlando-Kissimmee-Sanford, FL']
+orlando_housing_market = orlando_housing_market.dropna(subset=['ZHVI'])
+orlando_housing_market= orlando_housing_market.sort_values(by='Date')
+
+#Graph the most expensive counties in the Orlando area over time
+counties = orlando_housing_market['Region'].unique()
+
+cmap = cm.get_cmap('tab10')
+
 plt.figure(figsize=(10, 6))
-plt.scatter(zhvi_df['SizeRank'], zhvi_df['ZHVI'], color='green')
-plt.title('Relationship b/w county population and home value (1=most populated)')
-plt.xlabel('County Size')
-plt.ylabel('Home Value')
-plt.ylim(0, 500000)
+
+#iterate through the counties
+for i, county in enumerate(counties):
+    county_data = orlando_housing_market[orlando_housing_market['Region'] == county]
+    color = cmap(i % 10)
+    plt.plot(county_data['Date'], county_data['ZHVI'], label=county, color=color)
+
+plt.title('History of house prices for the Orlando metro area (2000-2024)')
+plt.legend()
+plt.xlabel('Date')
+plt.ylabel('Home Values, Orlando Metro Area')
 plt.xticks(rotation=45)
 plt.tight_layout()
 plt.show()
